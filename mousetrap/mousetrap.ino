@@ -2,37 +2,39 @@
 #include <Gyver433.h>
 
 
-const byte SERV = 2;
-const byte IR_VD = 3;
+const byte SERVO = 2;
+const byte IR_LED = 3;
 const byte OPTO_VT = 4;
 const byte TOGGLE_BT = 5;
-const byte TRANSMIT = 6;
+const byte TRANSMITTER = 6;
 const byte LED = 13;
 
 Servo servo;
-Gyver433_TX<TRANSMIT> tx;
+Gyver433_TX<TRANSMITTER> tx;
 
-const byte ON = 140;
-const byte OFF = 90;
+const byte SERVO_ANGLE_ON = 140;
+const byte SERVO_ANGLE_OFF = 90;
 
 bool servoInStateON = false;
 bool calibrationMode = false;
 
 
 void setState(bool state) {
-    servo.attach(SERV);
+    servo.attach(SERVO);
     delay(50); // задержка на включение сервопривода
     if (state) {
-        digitalWrite(IR_VD, HIGH);
-        servo.write(ON);
+        digitalWrite(IR_LED, HIGH);
+        servo.write(SERVO_ANGLE_ON);
+        digitalWrite(LED, LOW);
         servoInStateON = true;
     } else {
-        digitalWrite(IR_VD, LOW);
-        servo.write(OFF);
+        digitalWrite(IR_LED, LOW);
+        servo.write(SERVO_ANGLE_OFF);
+        digitalWrite(LED, HIGH);
         servoInStateON = false;
     }
     delay(500); // дожидаемся, когда сервопривод отработает
-    servo.detach();
+    servo.detach(); // выключаем, чтобы не трещал от нагрузки на вал
     sendState();
 }
 
@@ -77,7 +79,7 @@ void sendState() {
 
 
 void setup() {
-    pinMode(IR_VD, OUTPUT);
+    pinMode(IR_LED, OUTPUT);
     pinMode(OPTO_VT, INPUT);
     pinMode(TOGGLE_BT, INPUT);
     pinMode(LED, OUTPUT);
@@ -87,7 +89,8 @@ void setup() {
 }
 
 void loop() {
-
+    // Короткое нажатие (~0.5с) переключает состояние, 
+    // а долгое (~1с) переключает режим работы.
     if (digitalRead(TOGGLE_BT) == HIGH) {
         delay(10);
         if (digitalRead(TOGGLE_BT) == HIGH) {
@@ -100,6 +103,7 @@ void loop() {
         }
     }
 
+    // В режиме калибровки светодиод показывает состояние оптотранзистора (открыт/закрыт)
     if (calibrationMode) {
         if (digitalRead(OPTO_VT) == HIGH) {
             digitalWrite(LED, HIGH);
@@ -112,9 +116,9 @@ void loop() {
             if (digitalRead(OPTO_VT) == HIGH) {
                 setState(false);
             }
-        } else {
-            sendState();
-            delay(500);
         }
     }
+
+    sendState();
+    delay(500);
 }

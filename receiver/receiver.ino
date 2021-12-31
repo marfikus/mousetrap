@@ -2,9 +2,9 @@
 
 
 const byte LED = 3;
-const byte RECEIVE = 2;
+const byte RECEIVER = 2;
 
-Gyver433_RX<RECEIVE, 20> rx;
+Gyver433_RX<RECEIVER, 20> rx;
 
 
 void setup() {
@@ -20,13 +20,8 @@ void isr() {
 
 void loop() {
     // gotData() вернёт количество удачно принятых байт
-    if (rx.gotData()) {   // если больше 0    
-        // ЧИТАЕМ. СПОСОБ 1
-        // я знаю, что передатчик отправляет char[15]
-        // char data[15];
+    if (rx.gotData()) {   // если больше 0
         byte data;
-
-        // читаем принятые данные в data
         // если данные совпадают по размеру - ок
         if (rx.readData(data)) {
             Serial.print(data);
@@ -41,13 +36,8 @@ void loop() {
             Serial.print("Data error");
         }
 
-        // ЧИТАЕМ. СПОСОБ 2
-        // вывести сырые данные из буфера в порт
-        //Serial.write(rx.buffer, rx.size);
-
-        // выведем также качество соединения
+        // качество соединения
         Serial.print(", RSSI: ");
         Serial.println(rx.getRSSI());
     }
-
 }
