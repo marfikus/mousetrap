@@ -67,6 +67,14 @@ void blink() {
     digitalWrite(LED, HIGH);
     delay(100);
     digitalWrite(LED, LOW);
+    delay(200);
+
+    if (calibrationMode) {
+        digitalWrite(LED, HIGH);
+        delay(100);
+        digitalWrite(LED, LOW);
+        delay(200);        
+    }
 }
 
 void sendState() {
@@ -89,8 +97,8 @@ void setup() {
 }
 
 void loop() {
-    // Короткое нажатие (~0.5с) переключает состояние, 
-    // а долгое (~1с) переключает режим работы.
+    // Короткое нажатие (~1с) переключает состояние, 
+    // а долгое (~2с) переключает режим работы.
     if (digitalRead(TOGGLE_BT) == HIGH) {
         delay(10);
         if (digitalRead(TOGGLE_BT) == HIGH) {
